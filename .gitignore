@@ -9,3 +9,4 @@
 !*.py
 !README.md
 !.gitignore
+/assets
