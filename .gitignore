@@ -1,1 +1,11 @@
-assets/
+#ignore everything
+*
+
+
+# unignore what I want to be tracked
+!*.html
+!css/
+!js/
+!*.py
+!README.md
+!.gitignore
