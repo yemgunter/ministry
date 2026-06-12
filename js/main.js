@@ -161,4 +161,81 @@
   goTo(0);
   startAuto();
 
+  /* ============================================================
+     SIGNUP FORM — SUPABASE INTEGRATION
+     Source: 5am-fire | Project: yemgunter-capture
+  ============================================================ */
+  const SUPABASE_URL     = 'https://mmzpxjdleikbpyijqxxh.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tenB4amRsZWlrYnB5aWpxeHhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExOTM2NzksImV4cCI6MjA5Njc2OTY3OX0.e1blN1lMCJu01dYN1GfxiT6ZQZ2vdLvRUZDjk3d74TA';
+  const SOURCE           = '5am-fire';
+
+  var signupForm   = document.querySelector('.signup-form');
+  var formMessage  = document.getElementById('form-message');
+
+  if (signupForm && formMessage) {
+    signupForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      var name      = document.getElementById('signup-name').value.trim();
+      var email     = document.getElementById('signup-email').value.trim();
+      var submitBtn = signupForm.querySelector('button[type="submit"]');
+
+      // Client-side validation
+      if (!name || !email) {
+        formMessage.textContent     = 'Please enter your name and email address.';
+        formMessage.style.color     = '#c0392b';
+        formMessage.style.display   = 'block';
+        return;
+      }
+
+      // Lock button during request
+      submitBtn.disabled    = true;
+      submitBtn.textContent = 'Sending…';
+
+      fetch(SUPABASE_URL + '/rest/v1/subscribers', {
+        method: 'POST',
+        headers: {
+          'Content-Type'  : 'application/json',
+          'apikey'        : SUPABASE_ANON_KEY,
+          'Authorization' : 'Bearer ' + SUPABASE_ANON_KEY,
+          'Prefer'        : 'return=minimal'
+        },
+        body: JSON.stringify({
+          first_name : name,
+          email      : email,
+          source     : SOURCE
+        })
+      })
+      .then(function (response) {
+        if (response.ok) {
+          formMessage.textContent   = '✅ You\'re registered! Check your inbox for the Prayer Focus guide.';
+          formMessage.style.color   = '#27ae60';
+          signupForm.reset();
+          return null;
+        }
+        return response.json();
+      })
+      .then(function (err) {
+        if (!err) { return; } // success path
+        if (err.code === '23505') {
+          formMessage.textContent = 'You\'re already registered — check your inbox!';
+          formMessage.style.color = '#e67e22';
+        } else {
+          formMessage.textContent = 'Something went wrong. Please try again.';
+          formMessage.style.color = '#c0392b';
+        }
+      })
+      .catch(function () {
+        formMessage.textContent = 'Network error. Please check your connection and try again.';
+        formMessage.style.color = '#c0392b';
+      })
+      .finally(function () {
+        submitBtn.disabled    = false;
+        submitBtn.textContent = 'Send Me the Prayer Focus Guide';
+        formMessage.style.display = 'block';
+        formMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+    });
+  }
+
 }());
