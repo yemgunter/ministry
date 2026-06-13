@@ -16,20 +16,20 @@
   /* ============================================================
      CAROUSEL
   ============================================================ */
-  const track       = document.getElementById('carousel-track');
-  const slides      = Array.from(track.querySelectorAll('.carousel-slide'));
-  const dots        = Array.from(document.querySelectorAll('.carousel-dot'));
-  const prevBtn     = document.getElementById('carousel-prev');
-  const nextBtn     = document.getElementById('carousel-next');
-  const pauseBtn    = document.getElementById('carousel-pause');
-  const liveRegion  = document.getElementById('carousel-live');
-  const pauseIcon   = document.getElementById('pause-icon');
-  const playIcon    = document.getElementById('play-icon');
-  const counter     = document.getElementById('slide-counter');
+  const track = document.getElementById('carousel-track');
+  const slides = Array.from(track.querySelectorAll('.carousel-slide'));
+  const dots = Array.from(document.querySelectorAll('.carousel-dot'));
+  const prevBtn = document.getElementById('carousel-prev');
+  const nextBtn = document.getElementById('carousel-next');
+  const pauseBtn = document.getElementById('carousel-pause');
+  const liveRegion = document.getElementById('carousel-live');
+  const pauseIcon = document.getElementById('pause-icon');
+  const playIcon = document.getElementById('play-icon');
+  const counter = document.getElementById('slide-counter');
 
-  let current  = 0;
+  let current = 0;
   let autoPlay = true;
-  let timer    = null;
+  let timer = null;
   const INTERVAL = 5500; // ms between auto-advance
 
   /**
@@ -69,7 +69,7 @@
     current = index;
   }
 
-  /* ---- Auto-play ---- */
+  /* ---- Auto-play ---- */ 
   function startAuto() {
     clearInterval(timer);
     if (autoPlay) {
@@ -109,13 +109,13 @@
     pauseBtn.setAttribute('aria-pressed', autoPlay ? 'false' : 'true');
     pauseBtn.setAttribute('aria-label', autoPlay ? 'Pause carousel auto-play' : 'Resume carousel auto-play');
     pauseIcon.style.display = autoPlay ? '' : 'none';
-    playIcon.style.display  = autoPlay ? 'none' : '';
+    playIcon.style.display = autoPlay ? 'none' : '';
     if (autoPlay) { startAuto(); } else { stopAuto(); }
   });
 
   /* ---- Keyboard navigation (WCAG 2.1.1) ---- */
   document.querySelector('.carousel').addEventListener('keydown', function (e) {
-    if (e.key === 'ArrowLeft')  { goTo(current - 1); stopAuto(); startAuto(); }
+    if (e.key === 'ArrowLeft') { goTo(current - 1); stopAuto(); startAuto(); }
     if (e.key === 'ArrowRight') { goTo(current + 1); stopAuto(); startAuto(); }
   });
 
@@ -123,14 +123,14 @@
   const carousel = document.querySelector('.carousel');
   carousel.addEventListener('mouseenter', stopAuto);
   carousel.addEventListener('mouseleave', startAuto);
-  carousel.addEventListener('focusin',    stopAuto);
-  carousel.addEventListener('focusout',   startAuto);
+  carousel.addEventListener('focusin', stopAuto);
+  carousel.addEventListener('focusout', startAuto);
 
   /* ---- Respect prefers-reduced-motion ---- */
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     autoPlay = false;
     pauseIcon.style.display = 'none';
-    playIcon.style.display  = '';
+    playIcon.style.display = '';
     pauseBtn.setAttribute('aria-pressed', 'true');
     pauseBtn.setAttribute('aria-label', 'Resume carousel auto-play');
   }
@@ -138,7 +138,7 @@
   /* ============================================================
      MOBILE NAVIGATION TOGGLE
   ============================================================ */
-  const toggle  = document.querySelector('.nav-toggle');
+  const toggle = document.querySelector('.nav-toggle');
   const navList = document.getElementById('nav-list');
 
   toggle.addEventListener('click', function () {
@@ -165,21 +165,21 @@
      SIGNUP FORM — SUPABASE INTEGRATION
      Source: 5am-fire | Project: yemgunter-capture
   ============================================================ */
-  var SUPABASE_URL      = 'https://mmzpxjdleikbpyijqxxh.supabase.co';
+  var SUPABASE_URL = 'https://mmzpxjdleikbpyijqxxh.supabase.co';
   var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tenB4amRsZWlrYnB5aWpxeHhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExOTM2NzksImV4cCI6MjA5Njc2OTY3OX0.e1blN1lMCJu01dYN1GfxiT6ZQZ2vdLvRUZDjk3d74TA';
-  var SOURCE            = '5am-fire';
+  var SOURCE = '5am-fire';
 
-  var signupForm  = document.querySelector('.signup-form');
+  var signupForm = document.querySelector('.signup-form');
   var formMessage = document.getElementById('form-message');
 
   function resetBtn(btn) {
-    btn.disabled    = false;
+    btn.disabled = false;
     btn.textContent = 'Send Me the Prayer Focus Guide';
   }
 
   function showMessage(msg, color) {
-    formMessage.textContent   = msg;
-    formMessage.style.color   = color;
+    formMessage.textContent = msg;
+    formMessage.style.color = color;
     formMessage.style.display = 'block';
     formMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
@@ -188,8 +188,8 @@
     signupForm.addEventListener('submit', function (e) {
       e.preventDefault();
 
-      var name      = document.getElementById('signup-name').value.trim();
-      var email     = document.getElementById('signup-email').value.trim();
+      var name = document.getElementById('signup-name').value.trim();
+      var email = document.getElementById('signup-email').value.trim();
       var submitBtn = signupForm.querySelector('button[type="submit"]');
 
       if (!name || !email) {
@@ -197,39 +197,39 @@
         return;
       }
 
-      submitBtn.disabled    = true;
+      submitBtn.disabled = true;
       submitBtn.textContent = 'Sending…';
 
       fetch(SUPABASE_URL + '/rest/v1/subscribers', {
         method: 'POST',
         headers: {
-          'Content-Type'  : 'application/json',
-          'apikey'        : SUPABASE_ANON_KEY,
-          'Authorization' : 'Bearer ' + SUPABASE_ANON_KEY,
-          'Prefer'        : 'return=minimal'
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+          'Prefer': 'return=minimal'
         },
-        body: JSON.stringify({ first_name: name, email: email, source: SOURCE })
+        body: JSON.stringify({ full_name: name, email: email, source: SOURCE })
       })
-      .then(function (response) {
-        if (response.ok) {
-          showMessage('You\'re registered! Check your inbox for the Prayer Focus guide.', '#27ae60');
-          signupForm.reset();
-          resetBtn(submitBtn);
-          return;
-        }
-        response.json().then(function (err) {
-          if (err.code === '23505') {
-            showMessage('You\'re already registered — check your inbox!', '#e67e22');
-          } else {
-            showMessage('Something went wrong. Please try again.', '#c0392b');
+        .then(function (response) {
+          if (response.ok) {
+            showMessage('You\'re registered! Check your inbox for the Prayer Focus guide.', '#27ae60');
+            signupForm.reset();
+            resetBtn(submitBtn);
+            return;
           }
+          response.json().then(function (err) {
+            if (err.code === '23505') {
+              showMessage('You\'re already registered — check your inbox!', '#e67e22');
+            } else {
+              showMessage('Something went wrong. Please try again.', '#c0392b');
+            }
+            resetBtn(submitBtn);
+          });
+        })
+        .catch(function () {
+          showMessage('Network error. Please check your connection and try again.', '#c0392b');
           resetBtn(submitBtn);
         });
-      })
-      .catch(function () {
-        showMessage('Network error. Please check your connection and try again.', '#c0392b');
-        resetBtn(submitBtn);
-      });
     });
   }
 
