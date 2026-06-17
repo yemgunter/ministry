@@ -163,11 +163,11 @@
 
   /* ============================================================
      SIGNUP FORM — SUPABASE INTEGRATION
-     Source: 5am-fire | Project: yemgunter-capture
+     Source: prayer-focus | Project: yemgunter-capture
   ============================================================ */
   var SUPABASE_URL = 'https://mmzpxjdleikbpyijqxxh.supabase.co';
   var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tenB4amRsZWlrYnB5aWpxeHhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExOTM2NzksImV4cCI6MjA5Njc2OTY3OX0.e1blN1lMCJu01dYN1GfxiT6ZQZ2vdLvRUZDjk3d74TA';
-  var SOURCE = '5am-fire';
+  var SOURCE = 'prayer-focus';
 
   var signupForm = document.querySelector('.signup-form');
   var formMessage = document.getElementById('form-message');
