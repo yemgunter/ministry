@@ -1,13 +1,14 @@
 /**
  * YOLANDA GUNTER MINISTRIES
  * June 2026 Prayer Focus — Main JavaScript
- * main.js | Version 1.0
+ * main.js | Version 2.0 (cleaned)
  * Last updated: June 2026
  *
  * Responsibilities:
  *  - Accessible image carousel (keyboard, screen reader, reduced motion)
  *  - Mobile navigation toggle
  *  - Slide counter update
+ *  - Signup form — Supabase integration (database only)
  */
 
 (function () {
@@ -69,7 +70,7 @@
     current = index;
   }
 
-  /* ---- Auto-play ---- */ 
+  /* ---- Auto-play ---- */
   function startAuto() {
     clearInterval(timer);
     if (autoPlay) {
@@ -163,20 +164,33 @@
 
   /* ============================================================
      SIGNUP FORM — SUPABASE INTEGRATION
-     Source: prayer-focus | Project: yemgunter-capture
+     Backend: Supabase (yemgunter-capture project)
+     Database Table: subscribers
+     Columns: full_name, email, source, timezone (optional)
   ============================================================ */
+
+  // Supabase Configuration
   var SUPABASE_URL = 'https://mmzpxjdleikbpyijqxxh.supabase.co';
   var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tenB4amRsZWlrYnB5aWpxeHhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExOTM2NzksImV4cCI6MjA5Njc2OTY3OX0.e1blN1lMCJu01dYN1GfxiT6ZQZ2vdLvRUZDjk3d74TA';
   var SOURCE = 'prayer-focus';
 
+  // Form Elements
   var signupForm = document.querySelector('.signup-form');
   var formMessage = document.getElementById('form-message');
 
+  /**
+   * Reset submit button to initial state
+   */
   function resetBtn(btn) {
     btn.disabled = false;
     btn.textContent = 'Send Me the Prayer Focus Guide';
   }
 
+  /**
+   * Display a message to the user
+   * @param {string} msg - Message text
+   * @param {string} color - CSS color value
+   */
   function showMessage(msg, color) {
     formMessage.textContent = msg;
     formMessage.style.color = color;
@@ -184,22 +198,30 @@
     formMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
+  /**
+   * Submit handler for signup form
+   * Saves to Supabase subscribers table
+   */
   if (signupForm && formMessage) {
     signupForm.addEventListener('submit', function (e) {
       e.preventDefault();
 
       var name = document.getElementById('signup-name').value.trim();
       var email = document.getElementById('signup-email').value.trim();
+      var timezone = document.getElementById('signup-timezone').value.trim() || null;
       var submitBtn = signupForm.querySelector('button[type="submit"]');
 
+      // Validation
       if (!name || !email) {
         showMessage('Please enter your name and email address.', '#c0392b');
         return;
       }
 
+      // Disable button during submission
       submitBtn.disabled = true;
       submitBtn.textContent = 'Sending…';
 
+      // POST to Supabase REST API
       fetch(SUPABASE_URL + '/rest/v1/subscribers', {
         method: 'POST',
         headers: {
@@ -208,18 +230,27 @@
           'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
           'Prefer': 'return=minimal'
         },
-        body: JSON.stringify({ full_name: name, email: email, source: SOURCE })
+        body: JSON.stringify({
+          full_name: name,
+          email: email,
+          timezone: timezone,
+          source: SOURCE
+        })
       })
         .then(function (response) {
           if (response.ok) {
-            showMessage('You\'re registered! Check your inbox for the Prayer Focus guide.', '#27ae60');
+            // Success
+            showMessage('You\'re all set! Welcome to the Prayer Focus community.', '#27ae60');
             signupForm.reset();
             resetBtn(submitBtn);
             return;
           }
+
+          // Handle API errors
           response.json().then(function (err) {
+            // Duplicate email (unique constraint violation)
             if (err.code === '23505') {
-              showMessage('You\'re already registered — check your inbox!', '#e67e22');
+              showMessage('This email is already registered.', '#e67e22');
             } else {
               showMessage('Something went wrong. Please try again.', '#c0392b');
             }
@@ -227,6 +258,7 @@
           });
         })
         .catch(function () {
+          // Network error
           showMessage('Network error. Please check your connection and try again.', '#c0392b');
           resetBtn(submitBtn);
         });
