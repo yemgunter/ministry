@@ -1,8 +1,30 @@
 /* ============================================================
    YOLANDA GUNTER MINISTRIES
    June 2026 Prayer Focus — Main Stylesheet
-   styles.css | Version 1.0
-   Last updated: June 2026
+   styles.css | Version 4.0 (hybrid hero: full-bleed on
+   portrait-iPad-and-smaller, original 60/40 split with a thinner
+   frame on landscape-iPad-and-larger)
+   Based on styles-v2.css — DO NOT overwrite styles.css, styles-v2.css,
+   or styles-v3.css.
+
+   Breakpoint: 1024px.
+     - Below 1024px (phones, portrait iPad/tablets): identical to v2 —
+       true 100vw edge-to-edge images, per-slide height matched by
+       main-v4.js, controls (arrows + dots + pause) in a bar below the
+       image, touch-swipe.
+     - 1024px and up (landscape iPad, laptops, desktops): reverts to
+       the ORIGINAL 60% image / 40% text split layout, with the frame
+       padding cut way down (10px outer -> 2px, 12px inner -> 5px) and
+       controls moved back to overlaying the image (matching the
+       original design) since a real frame now separates them from
+       the graphic.
+   Note on the breakpoint: 1024px is the standard tablet/desktop
+   cutoff, but it's also the portrait width of 12.9" iPad Pro — that
+   specific device will get the split layout, not the full-bleed one.
+   Lower this number (e.g. to 900px) if you'd rather it get the
+   mobile-style hero instead.
+   
+   Last updated: July 2026
 ============================================================ */
 
 /* ============================================================
@@ -256,32 +278,30 @@ body > header,
 #hero {
   padding: 0;
   position: relative;
-  overflow: hidden;
   background: var(--color-slate);
-  min-height: 90vh;
-  display: flex;
 }
 
 .hero-split {
   display: flex;
+  flex-direction: column;
   width: 100%;
-  min-height: 90vh;
 }
 
+/* ---- Full-bleed media (mobile / portrait-tablet default) ---- */
 .hero-image-panel {
   position: relative;
-  flex: 0 0 60%;
-  overflow: hidden;
-  padding: 10px;
+  width: 100%;
+  padding: 0;
   background: var(--color-slate);
 }
 
 .carousel {
   position: relative;
   width: 100%;
-  height: 100%;
-  border-radius: var(--radius-md);
+  aspect-ratio: 1 / 1;      /* pre-JS / no-JS fallback — matches 5 of 6 slides */
   overflow: hidden;
+  transition: height 0.45s ease;
+  touch-action: pan-y;      /* let the page scroll vertically; we handle horizontal swipe ourselves */
 }
 
 .carousel-track {
@@ -301,68 +321,91 @@ body > header,
 .carousel-slide img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  object-position: center center;
+  object-fit: contain; /* container height is matched to each slide by JS (mobile/tablet), or fills the fixed 60% column (desktop) */
+  object-position: center;
   display: block;
-  padding: 12px;
+  padding: 0;
   background: var(--color-slate);
 }
 
 .slide-caption { display: none; }
 
-.carousel-btn {
+/* ---- Slide counter badge, overlaid top-right of the image (IG-style "1/6" tag) ---- */
+.hero-slide-counter {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 1rem;
+  right: 1rem;
   z-index: 10;
-  background: rgba(253, 250, 244, 0.9);
-  border: 2px solid var(--color-slate);
-  color: var(--color-slate);
-  width: 40px;
-  height: 40px;
+  background: rgba(66, 62, 80, 0.55);
+  backdrop-filter: blur(4px);
+  color: rgba(255,255,255,0.9);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  padding: 0.3rem 0.65rem;
+  border-radius: var(--radius-full);
+}
+.hero-slide-counter strong { color: var(--color-white); font-size: 0.8125rem; }
+
+/* ---- Control bar: arrows + dot breadcrumbs + pause, below the image (mobile / portrait-tablet default) ---- */
+.carousel-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 0.875rem 1rem;
+  background: var(--color-slate);
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.carousel-arrow {
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.08);
+  border: 1.5px solid rgba(255,255,255,0.35);
+  color: var(--color-white);
+  width: 38px;
+  height: 38px;
   border-radius: var(--radius-full);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background var(--transition), color var(--transition);
+  transition: background var(--transition), border-color var(--transition), transform var(--transition);
 }
-.carousel-btn:hover,
-.carousel-btn:focus { background: var(--color-slate); color: var(--color-white); }
-.carousel-btn--prev { left: 0.875rem; }
-.carousel-btn--next { right: 0.875rem; }
-.carousel-btn svg { pointer-events: none; }
+.carousel-arrow:hover,
+.carousel-arrow:focus {
+  background: var(--color-white);
+  color: var(--color-slate);
+  border-color: var(--color-white);
+}
+.carousel-arrow:active { transform: scale(0.94); }
+.carousel-arrow svg { pointer-events: none; }
 
 .carousel-dots {
-  position: absolute;
-  bottom: 1.25rem;
-  left: 50%;
-  transform: translateX(-50%);
   display: flex;
+  align-items: center;
   gap: 0.55rem;
-  z-index: 10;
 }
 .carousel-dot {
   width: 9px;
   height: 9px;
   border-radius: var(--radius-full);
-  background: rgba(255,255,255,0.35);
-  border: 2px solid rgba(255,255,255,0.65);
+  background: rgba(255,255,255,0.3);
+  border: 2px solid rgba(255,255,255,0.55);
   cursor: pointer;
   transition: background var(--transition), transform var(--transition);
   padding: 0;
 }
 .carousel-dot[aria-selected="true"],
 .carousel-dot.active {
-  background: var(--color-white);
+  background: var(--color-mint);
+  border-color: var(--color-mint);
   transform: scale(1.4);
 }
 
 .carousel-pause {
-  position: absolute;
-  bottom: 1.125rem;
-  right: 1rem;
-  z-index: 10;
+  flex-shrink: 0;
+  margin-left: 0.25rem;
   background: rgba(253,250,244,0.85);
   border: 1.5px solid var(--color-slate);
   color: var(--color-slate);
@@ -373,18 +416,19 @@ body > header,
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background var(--transition), color var(--transition);
 }
 .carousel-pause:hover,
 .carousel-pause:focus { background: var(--color-slate); color: var(--color-white); }
 
 .hero-content-panel {
-  flex: 0 0 40%;
+  width: 100%;
   background: var(--color-slate);
+  padding: 3rem 1.5rem 3.5rem;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding: 4rem 3rem 4rem 3.5rem;
-  position: relative;
+  align-items: center;
+  text-align: center;
 }
 
 .hero-content-panel::before {
@@ -434,13 +478,13 @@ body > header,
   line-height: 1.8;
   color: rgba(255,255,255,0.78);
   margin-bottom: 2.5rem;
-  max-width: 340px;
+  max-width: 480px;
 }
 
 .hero-ctas {
   display: flex;
-  flex-direction: column;
-  gap: 0.875rem;
+  flex-direction: wrap;
+  gap: 0.875rem 1.25rem;
   align-items: flex-start;
 }
 

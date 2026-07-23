@@ -27,17 +27,34 @@
   const pauseIcon = document.getElementById('pause-icon');
   const playIcon = document.getElementById('play-icon');
   const counter = document.getElementById('slide-counter');
+  const carousel = document.querySelector('.carousel');
 
   let current = 0;
   let autoPlay = true;
   let timer = null;
   const INTERVAL = 5500; // ms between auto-advance
 
-  /**
+   /**
+   * Resize the carousel viewport (in px) to match the current slide's
+   * own aspect ratio, so the active image fills edge-to-edge with no
+   * cropping in the full-bleed mobile/portrait-tablet mode. On
+   * desktop (1024px+), CSS forces height: 100% !important, which
+   * overrides this — handled purely by the stylesheet.
+   * @param {number} index
+   */
+  function setCarouselHeight(index) {
+    if (!carousel) return;
+    const ratio = parseFloat(slides[index].dataset.ratio) || 1;
+    const width = carousel.clientWidth;
+    if (width > 0) {
+      carousel.style.height = Math.round(width / ratio) + 'px';
+    }
+  }
+   /**
    * Navigate to a specific slide index.
    * Handles wrapping, aria-hidden, dot state, live region, and counter.
    * @param {number} index
-   */
+   */ 
   function goTo(index) {
     index = (index + slides.length) % slides.length;
 
@@ -48,6 +65,9 @@
 
     // Move track
     track.style.transform = 'translateX(-' + (index * 100) + '%)';
+
+    // Morph carousel height to the incoming slide's own ratio (mobile/tablet)
+    setCarouselHeight(index);
 
     // Update dot states
     dots.forEach(function (d, i) {
@@ -115,17 +135,59 @@
   });
 
   /* ---- Keyboard navigation (WCAG 2.1.1) ---- */
-  document.querySelector('.carousel').addEventListener('keydown', function (e) {
+  carousel.addEventListener('keydown', function (e) {
     if (e.key === 'ArrowLeft') { goTo(current - 1); stopAuto(); startAuto(); }
     if (e.key === 'ArrowRight') { goTo(current + 1); stopAuto(); startAuto(); }
   });
 
   /* ---- Pause on hover / focus (WCAG 2.2.2) ---- */
-  const carousel = document.querySelector('.carousel');
   carousel.addEventListener('mouseenter', stopAuto);
   carousel.addEventListener('mouseleave', startAuto);
   carousel.addEventListener('focusin', stopAuto);
   carousel.addEventListener('focusout', startAuto);
+
+  /* ---- Touch swipe (IG/FB/TikTok-style horizontal drag) ----
+     Vertical page scroll is left alone (touch-action: pan-y in CSS);
+     we only intercept the gesture when the horizontal move clearly
+     dominates the vertical move, so swiping the carousel never fights
+     with scrolling the page. Harmless to leave active at desktop
+     widths too — it simply won't fire on non-touch devices. */
+  let touchStartX = 0;
+  let touchStartY = 0;
+  let touchActive = false;
+  const SWIPE_THRESHOLD = 40; // px
+
+  carousel.addEventListener('touchstart', function (e) {
+    const t = e.changedTouches[0];
+    touchStartX = t.clientX;
+    touchStartY = t.clientY;
+    touchActive = true;
+    stopAuto();
+  }, { passive: true });
+
+  carousel.addEventListener('touchend', function (e) {
+    if (!touchActive) return;
+    touchActive = false;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - touchStartX;
+    const dy = t.clientY - touchStartY;
+    if (Math.abs(dx) >= SWIPE_THRESHOLD && Math.abs(dx) > Math.abs(dy)) {
+      goTo(current + (dx < 0 ? 1 : -1));
+    }
+    startAuto();
+  }, { passive: true });
+
+  carousel.addEventListener('touchcancel', function () {
+    touchActive = false;
+    startAuto();
+  }, { passive: true });
+
+  /* ---- Keep carousel height in sync on viewport/orientation changes ---- */
+  let resizeTimer = null;
+  window.addEventListener('resize', function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () { setCarouselHeight(current); }, 120);
+  });
 
   /* ---- Respect prefers-reduced-motion ---- */
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -159,6 +221,7 @@
   /* ============================================================
      INIT
   ============================================================ */
+  setCarouselHeight(0);
   goTo(0);
   startAuto();
 
